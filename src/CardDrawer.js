@@ -19,6 +19,7 @@ function CardDrawer() {
   const [cards, setCards] = useState([]);
   const [getNewCardUrl, setGetNewCardUrl] = useState(null);
 
+  /** gets new deck upon page load */
   useEffect(function newDeckOnMount() {
     async function getNewDeck() {
       let response = await axios.get(GET_DECK_URL);
@@ -30,22 +31,27 @@ function CardDrawer() {
     getNewDeck();
   }, []);
 
-  function handleClick() {
-    async function getNextCard() {
-      let response = await axios.get(getNewCardUrl);
-      let cardCode = response.data.cards[0].code;
-      setCards(card => [...card, cardCode]);
+  /** gets next card on click */
+  async function handleClick() {
+    if (cards.length === 52) {
+      alert("Error, no more cards");
+      return;
     }
-    getNextCard();
+    let response = await axios.get(getNewCardUrl);
+    let cardCode = response.data.cards[0].code;
+    setCards(card => [...card, cardCode]);
+    // NOTE: we'll change state here to trigger useEffect
   }
 
   let cardList = cards.map(c => <Card code={c} />);
 
   return (
     <div className="CardDrawer">
-      <button className="CardDrawer-button" onClick={handleClick}>
-        Gimme a card!
-      </button>
+      <div>
+        <button className="CardDrawer-button" onClick={handleClick}>
+          Gimme a card!
+        </button>
+      </div>
       {cardList}
     </div>
   )
