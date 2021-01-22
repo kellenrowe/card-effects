@@ -1,28 +1,45 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+import Card from "./Card";
 
 const GET_DECK_URL = "https://deckofcardsapi.com/api/deck/new/shuffle/";
-const GET_NEXT_CARD = "https://deckofcardsapi.com/api/deck/<<deck_id>>/draw/?count=1";
 
-/** add doc string */
+/** Render a card component
+ * 
+ * State:
+ * - cards: Array of all the card codes 
+ *    ["KH", "8S", ...]
+ * - getNewCardUrl: URL to get new cards from 
+ *    specific deck of cards
+ * 
+ * App -> CardDrawer -> Card
+ */
 function CardDrawer() {
   const [cards, setCards] = useState([]);
-  const [deckId, setDeckId] = useState(null);
+  const [getNewCardUrl, setGetNewCardUrl] = useState(null);
 
   useEffect(function newDeckOnMount() {
     async function getNewDeck() {
       let response = await axios.get(GET_DECK_URL);
-      setDeckId(response.data.deck_id);
+      let deckId = response.data.deck_id;
+      setGetNewCardUrl(
+        `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`
+      );
     }
-  })
+    getNewDeck();
+  }, []);
 
   function handleClick() {
     async function getNextCard() {
-      let response = await axios.get(GET_NEXT_CARD);
-      setCards(card => [...cards, response.data.cards[0]])
-     }
+      let response = await axios.get(getNewCardUrl);
+      let cardCode = response.data.cards[0].code;
+      setCards(card => [...card, cardCode]);
+    }
+    getNextCard();
   }
 
-  let cardList = cards.map(c => <Card card={c} />)
+  let cardList = cards.map(c => <Card code={c} />);
 
   return (
     <div className="CardDrawer">
@@ -32,7 +49,6 @@ function CardDrawer() {
       {cardList}
     </div>
   )
-
 }
 
 export default CardDrawer;
