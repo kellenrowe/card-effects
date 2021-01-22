@@ -6,13 +6,21 @@ const IMAGE_URL = "https://deckofcardsapi.com/static/img"
 /** Render a card component 
  * 
  * Prop:
- * - code: Two letter code describing what the card is
+ * - card: object like: 
+ * {
+      "image": "https://deckofcardsapi.com/static/img/KH.png",
+      "value": "KING",
+      "suit": "HEARTS",
+      "code": "KH"
+    }
  * 
  * CardDrawer -> Card
 */
-function Card({ code }) {
+function Card({ card }) {
   return (
-    <img className="Card" src={`${IMAGE_URL}/${code}.png`} />
+    <img className="Card"
+      alt={`${card.value} of ${card.suit}`}
+      src={card.image} />
   )
 }
 
