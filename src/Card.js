@@ -1,8 +1,3 @@
-import React from "react";
-
-const IMAGE_URL = "https://deckofcardsapi.com/static/img"
-
-
 /** Render a card component 
  * 
  * Prop:
