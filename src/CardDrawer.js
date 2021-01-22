@@ -8,10 +8,9 @@ const BASE_URL = "https://deckofcardsapi.com/api/deck";
 /** Render a card component
  * 
  * State:
- * - cards: Array of all the card codes 
- *    ["KH", "8S", ...]
- * - deck: object that holds information regarding the deck
- *    {success, deck_id, shuffled, remaining}
+ * - cards: Array of all the card objects containing image and code 
+ *    [{image, code, value, suit}, ...]
+ * - deckId: deck ID that the component is using
  * - fetchCard: boolean describing whether this current 
  *    component should fetch a card
  * - isShuffling: boolean describing whether this current 
@@ -22,7 +21,7 @@ const BASE_URL = "https://deckofcardsapi.com/api/deck";
 
 function CardDrawer() {
   const [cards, setCards] = useState([]);
-  const [deck, setDeck] = useState(null);
+  const [deckId, setDeckId] = useState(null);
   const [fetchCard, setFetchCard] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
 
@@ -37,7 +36,7 @@ function CardDrawer() {
         alert(`There has been an error: ${err}`);
         return;
       }
-      setDeck(response.data);
+      setDeckId(response.data.deck_id);
     }
     getNewDeck();
   }, []);
@@ -48,7 +47,7 @@ function CardDrawer() {
       setFetchCard(false);
       try {
         var response = await axios.get(
-          `${BASE_URL}/${deck.deck_id}/draw/?count=1`);
+          `${BASE_URL}/${deckId}/draw/?count=1`);
       } catch (err) {
         alert(`There has been an error: ${err}`);
         return;
@@ -61,7 +60,7 @@ function CardDrawer() {
       setCards(card => [...card, response.data.cards[0]]);
     }
     if (fetchCard) getNewCard();
-  }, [fetchCard])
+  }, [fetchCard, deckId])
 
   /** shuffles the deck after re-render */
   useEffect(function shuffleDeckOnClick() {
@@ -69,7 +68,7 @@ function CardDrawer() {
       setIsShuffling(false);
       try{
         let response = await axios.get(
-          `${BASE_URL}/${deck.deck_id}/shuffle`);
+          `${BASE_URL}/${deckId}/shuffle`);
         if (response.data.success === false) throw new Error(
           "The deck was not successfully shuffled"
         );
@@ -80,7 +79,7 @@ function CardDrawer() {
     }
     // SetTimeOut only here just to demonstrate the loading screen appears
     if (isShuffling) setTimeout(shuffleDeck, 1000);
-  }, [isShuffling]);
+  }, [isShuffling, deckId]);
 
   /** add doc string */
   function handleClick() {
